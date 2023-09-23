@@ -4,15 +4,15 @@
 
 package io.github.thanhminhmr.tobacco.web.rest;
 
-import io.github.thanhminhmr.tobacco.presistence.model.Group;
-import io.github.thanhminhmr.tobacco.presistence.model.User;
-import io.github.thanhminhmr.tobacco.presistence.repository.GroupRepository;
-import io.github.thanhminhmr.tobacco.presistence.repository.UserRepository;
-import io.github.thanhminhmr.tobacco.dto.validation.DisplayString;
 import io.github.thanhminhmr.tobacco.dto.converter.GroupConverter;
 import io.github.thanhminhmr.tobacco.dto.converter.UserConverter;
 import io.github.thanhminhmr.tobacco.dto.model.GroupDto;
 import io.github.thanhminhmr.tobacco.dto.rest.PageDto;
+import io.github.thanhminhmr.tobacco.dto.validation.DisplayString;
+import io.github.thanhminhmr.tobacco.presistence.model.Group;
+import io.github.thanhminhmr.tobacco.presistence.model.User;
+import io.github.thanhminhmr.tobacco.presistence.repository.GroupRepository;
+import io.github.thanhminhmr.tobacco.presistence.repository.UserRepository;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -28,6 +28,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -46,10 +47,15 @@ public record GroupsController(
 			@RequestParam(value = "displayName", required = false) @Nullable @DisplayString String displayName,
 			@RequestParam(value = "userId", required = false) @Nullable Long userId,
 			@RequestParam(value = "deleted", required = false) @Nullable Boolean deleted,
+			@RequestParam(value = "createdBefore", required = false) @Nullable Instant createdBefore,
+			@RequestParam(value = "createdAfter", required = false) @Nullable Instant createdAfter,
+			@RequestParam(value = "updatedBefore", required = false) @Nullable Instant updatedBefore,
+			@RequestParam(value = "updatedAfter", required = false) @Nullable Instant updatedAfter,
 			@RequestParam(value = "pageNumber", defaultValue = "0") @Min(0) int pageNumber,
 			@RequestParam(value = "pageSize", defaultValue = "20") @Min(1) @Max(100) int pageSize) {
 		return groupConverter.convert(groupRepository.findAll(
-				new GroupListSpecification(displayName, userId, deleted),
+				new GroupListSpecification(displayName, userId, deleted,
+						createdBefore, createdAfter, updatedBefore, updatedAfter),
 				PageRequest.of(pageNumber, pageSize)
 		));
 	}
@@ -103,10 +109,16 @@ public record GroupsController(
 	private record GroupListSpecification(
 			@Nullable @DisplayString String displayName,
 			@Nullable Long userId,
-			@Nullable Boolean deleted
+			@Nullable Boolean deleted,
+			@Nullable Instant createdBefore,
+			@Nullable Instant createdAfter,
+			@Nullable Instant updatedBefore,
+			@Nullable Instant updatedAfter
 	) implements Specification<Group> {
 		@Override
-		public @Nonnull Predicate toPredicate(@Nonnull Root<Group> groupRoot, @Nonnull CriteriaQuery<?> query, @Nonnull CriteriaBuilder builder) {
+		public @Nonnull Predicate toPredicate(@Nonnull Root<Group> groupRoot,
+				@Nonnull CriteriaQuery<?> query,
+				@Nonnull CriteriaBuilder builder) {
 			final List<Predicate> predicates = new ArrayList<>();
 			if (displayName != null) {
 				predicates.add(builder.like(groupRoot.get("displayName"), '%' + displayName + '%'));
@@ -120,6 +132,18 @@ public record GroupsController(
 			}
 			if (deleted != null) {
 				predicates.add(builder.equal(groupRoot.get("deleted"), deleted));
+			}
+			if (createdBefore != null) {
+				predicates.add(builder.lessThanOrEqualTo(groupRoot.get("createdAt"), createdBefore));
+			}
+			if (createdAfter != null) {
+				predicates.add(builder.greaterThanOrEqualTo(groupRoot.get("createdAt"), createdAfter));
+			}
+			if (updatedBefore != null) {
+				predicates.add(builder.lessThanOrEqualTo(groupRoot.get("updatedAt"), updatedBefore));
+			}
+			if (updatedAfter != null) {
+				predicates.add(builder.greaterThanOrEqualTo(groupRoot.get("updatedAt"), updatedAfter));
 			}
 			return builder.and(predicates.toArray(Predicate[]::new));
 		}

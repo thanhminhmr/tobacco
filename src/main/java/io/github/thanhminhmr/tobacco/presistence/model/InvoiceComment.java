@@ -7,7 +7,7 @@ package io.github.thanhminhmr.tobacco.presistence.model;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.SourceType;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
 
@@ -46,8 +46,13 @@ public class InvoiceComment implements EntityMarker {
 	@Column(name = "status_after", nullable = false)
 	private InvoiceStatus statusAfter;
 
-	@CreationTimestamp(source = SourceType.DB)
+	@CreationTimestamp
+	@Column(name = "created_at", nullable = false, updatable = false)
 	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "created_at", nullable = false)
 	private Instant createdAt;
+
+	@UpdateTimestamp
+	@Column(name = "updated_at", nullable = false)
+	@Temporal(TemporalType.TIMESTAMP)
+	private Instant updatedAt;
 }

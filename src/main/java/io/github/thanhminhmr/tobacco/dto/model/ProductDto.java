@@ -20,7 +20,7 @@ public record ProductDto(
 		@Nullable @DisplayString String displayName,
 		@Nullable @DisplayString String displayDescription,
 		@Nullable @DisplayString String displayUnit,
-		@Nullable @Min(1) Long currentPrice,
+		@Nullable @Min(0) Long currentPrice,
 		@Nullable Boolean deleted,
 		@Nullable @Past Instant createdAt,
 		@Nullable @Past Instant updatedAt

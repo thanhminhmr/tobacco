@@ -30,6 +30,8 @@ public class WebSecurityConfig {
 				.authorizeHttpRequests(requests -> requests
 						.requestMatchers("/api/account/**").authenticated()
 						.requestMatchers("/api/users/**").hasAuthority(Authority.Name.SUPER_ADMIN)
+						.requestMatchers("/api/groups/**").authenticated()
+						.requestMatchers("/api/products/**").authenticated()
 						.requestMatchers("/api/**").denyAll()
 						.anyRequest().permitAll())
 				.httpBasic(Customizer.withDefaults())
