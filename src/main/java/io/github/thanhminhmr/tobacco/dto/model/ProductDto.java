@@ -8,6 +8,7 @@ import io.github.thanhminhmr.tobacco.dto.validation.DisplayString;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Past;
+import lombok.With;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -15,6 +16,7 @@ import java.time.Instant;
 /**
  * DTO for {@link io.github.thanhminhmr.tobacco.presistence.model.Product}
  */
+@With
 public record ProductDto(
 		@Nullable Long id,
 		@Nullable @DisplayString String displayName,

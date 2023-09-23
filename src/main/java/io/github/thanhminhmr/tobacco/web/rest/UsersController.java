@@ -12,7 +12,6 @@ import io.github.thanhminhmr.tobacco.dto.validation.UsernameString;
 import io.github.thanhminhmr.tobacco.presistence.model.Authority;
 import io.github.thanhminhmr.tobacco.presistence.model.Group;
 import io.github.thanhminhmr.tobacco.presistence.model.User;
-import io.github.thanhminhmr.tobacco.presistence.repository.GroupRepository;
 import io.github.thanhminhmr.tobacco.presistence.repository.UserRepository;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -44,8 +43,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public record UsersController(
 		@Nonnull PasswordEncoder passwordEncoder,
 		@Nonnull UserRepository userRepository,
-		@Nonnull UserConverter userConverter,
-		@Nonnull GroupRepository groupRepository
+		@Nonnull UserConverter userConverter
 ) {
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	public @Nonnull PageDto<UserDto> list(
@@ -80,7 +78,7 @@ public record UsersController(
 				.password(passwordEncoder.encode(password))
 				.displayName(dto.displayName())
 				.authorities(Objects.requireNonNullElse(dto.authorities(), Set.of()))
-				.deleted(Objects.requireNonNullElse(dto.deleted(), false))
+				.deleted(false)
 				.build());
 		// TODO: the new password needs to be returned
 		return userConverter.convert(user);
@@ -96,7 +94,6 @@ public record UsersController(
 		final User user = userRepository.getReferenceById(userId);
 		if (dto.displayName() != null) user.setDisplayName(dto.displayName());
 		if (dto.authorities() != null) user.setAuthorities(dto.authorities());
-		if (dto.deleted() != null) user.setDeleted(dto.deleted());
 		return userConverter.convert(userRepository.save(user));
 	}
 
@@ -109,18 +106,16 @@ public record UsersController(
 
 	//region DTO
 
-	public record UserUpdateDto(
-			@Nullable @DisplayString String displayName,
-			@Nullable Set<Authority> authorities,
-			@Nullable Boolean deleted
-	) {
-	}
-
 	public record UserCreateDto(
 			@NotNull @UsernameString String username,
 			@NotNull @DisplayString String displayName,
-			@Nullable Set<Authority> authorities,
-			@Nullable Boolean deleted
+			@Nullable Set<Authority> authorities
+	) {
+	}
+
+	public record UserUpdateDto(
+			@Nullable @DisplayString String displayName,
+			@Nullable Set<Authority> authorities
 	) {
 	}
 

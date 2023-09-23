@@ -5,13 +5,11 @@
 package io.github.thanhminhmr.tobacco.web.rest;
 
 import io.github.thanhminhmr.tobacco.dto.converter.ProductConverter;
-import io.github.thanhminhmr.tobacco.dto.converter.UserConverter;
 import io.github.thanhminhmr.tobacco.dto.model.ProductDto;
 import io.github.thanhminhmr.tobacco.dto.rest.PageDto;
 import io.github.thanhminhmr.tobacco.dto.validation.DisplayString;
 import io.github.thanhminhmr.tobacco.presistence.model.Product;
 import io.github.thanhminhmr.tobacco.presistence.repository.ProductRepository;
-import io.github.thanhminhmr.tobacco.presistence.repository.UserRepository;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -30,15 +28,12 @@ import org.springframework.web.bind.annotation.*;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/products")
 public record ProductsController(
 		@Nonnull ProductRepository productRepository,
-		@Nonnull ProductConverter productConverter,
-		@Nonnull UserRepository userRepository,
-		@Nonnull UserConverter userConverter
+		@Nonnull ProductConverter productConverter
 ) {
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	public @Nonnull PageDto<ProductDto> list(
@@ -68,7 +63,7 @@ public record ProductsController(
 				.displayDescription(dto.displayDescription())
 				.displayUnit(dto.displayUnit())
 				.currentPrice(dto.currentPrice())
-				.deleted(Objects.requireNonNullElse(dto.deleted(), false))
+				.deleted(false)
 				.build()));
 	}
 
@@ -84,7 +79,6 @@ public record ProductsController(
 		if (dto.displayDescription() != null) product.setDisplayDescription(dto.displayDescription());
 		if (dto.displayUnit() != null) product.setDisplayUnit(dto.displayUnit());
 		if (dto.currentPrice() != null) product.setCurrentPrice(dto.currentPrice());
-		if (dto.deleted() != null) product.setDeleted(dto.deleted());
 		return productConverter.convert(productRepository.save(product));
 	}
 
@@ -101,8 +95,7 @@ public record ProductsController(
 			@NotNull @DisplayString String displayName,
 			@NotNull @DisplayString String displayDescription,
 			@NotNull @DisplayString String displayUnit,
-			@NotNull @Min(1) Long currentPrice,
-			@Nullable Boolean deleted
+			@NotNull @Min(0) Long currentPrice
 	) {
 	}
 
@@ -110,8 +103,7 @@ public record ProductsController(
 			@Nullable @DisplayString String displayName,
 			@Nullable @DisplayString String displayDescription,
 			@Nullable @DisplayString String displayUnit,
-			@Nullable @Min(1) Long currentPrice,
-			@Nullable Boolean deleted
+			@Nullable @Min(0) Long currentPrice
 	) {
 	}
 

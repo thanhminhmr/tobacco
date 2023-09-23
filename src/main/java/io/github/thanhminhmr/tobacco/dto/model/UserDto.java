@@ -9,7 +9,7 @@ import io.github.thanhminhmr.tobacco.dto.validation.UsernameString;
 import io.github.thanhminhmr.tobacco.presistence.model.Authority;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Past;
-import lombok.Builder;
+import lombok.With;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -18,7 +18,7 @@ import java.util.Set;
 /**
  * DTO for {@link io.github.thanhminhmr.tobacco.presistence.model.User}
  */
-@Builder
+@With
 public record UserDto(
 		@Nullable Long id,
 		@Nullable @UsernameString String username,

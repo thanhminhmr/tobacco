@@ -38,7 +38,7 @@ public class Product implements EntityMarker {
 	private Long currentPrice;
 
 	@Column(name = "deleted", nullable = false)
-	private Boolean deleted = false;
+	private Boolean deleted;
 
 	@CreationTimestamp
 	@Column(name = "created_at", nullable = false, updatable = false)

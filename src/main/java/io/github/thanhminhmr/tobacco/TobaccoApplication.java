@@ -72,7 +72,9 @@ public class TobaccoApplication {
 
 			final Invoice invoice = Invoice.builder()
 					.user(userRepository.findById(1L).orElseThrow())
+					.displayDescription("New invoice")
 					.status(InvoiceStatus.CREATED)
+					.deleted(false)
 					.build();
 
 			invoice.setItems(List.of(InvoiceItem.builder()
@@ -80,6 +82,7 @@ public class TobaccoApplication {
 					.product(productRepository.findById(1L).orElseThrow())
 					.quantity(100L)
 					.unitPrice(10000L)
+					.deleted(false)
 					.build()));
 
 			invoice.setComments(List.of(InvoiceComment.builder()
@@ -88,6 +91,7 @@ public class TobaccoApplication {
 					.displayComment("Comment one")
 					.statusBefore(InvoiceStatus.CREATED)
 					.statusAfter(InvoiceStatus.CREATED)
+					.deleted(false)
 					.build()));
 
 			invoiceRepository.save(invoice);

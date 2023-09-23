@@ -4,8 +4,8 @@
 
 package io.github.thanhminhmr.tobacco.dto.converter;
 
-import io.github.thanhminhmr.tobacco.presistence.model.User;
 import io.github.thanhminhmr.tobacco.dto.model.UserDto;
+import io.github.thanhminhmr.tobacco.presistence.model.User;
 import jakarta.annotation.Nonnull;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +20,7 @@ public final class UserConverter implements EntityDtoConverter<User, UserDto> {
 				user.getDeleted(),
 				user.getCreatedAt(),
 				user.getUpdatedAt(),
-				user.getAuthorities()
+				null
 		);
 	}
 }

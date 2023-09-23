@@ -46,6 +46,9 @@ public class InvoiceComment implements EntityMarker {
 	@Column(name = "status_after", nullable = false)
 	private InvoiceStatus statusAfter;
 
+	@Column(name = "deleted", nullable = false)
+	private Boolean deleted;
+
 	@CreationTimestamp
 	@Column(name = "created_at", nullable = false, updatable = false)
 	@Temporal(TemporalType.TIMESTAMP)

@@ -32,6 +32,7 @@ public class WebSecurityConfig {
 						.requestMatchers("/api/users/**").hasAuthority(Authority.Name.SUPER_ADMIN)
 						.requestMatchers("/api/groups/**").authenticated()
 						.requestMatchers("/api/products/**").authenticated()
+						.requestMatchers("/api/invoices/**").authenticated()
 						.requestMatchers("/api/**").denyAll()
 						.anyRequest().permitAll())
 				.httpBasic(Customizer.withDefaults())

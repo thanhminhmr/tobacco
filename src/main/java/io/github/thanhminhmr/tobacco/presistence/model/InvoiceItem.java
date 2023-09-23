@@ -40,6 +40,9 @@ public class InvoiceItem implements EntityMarker {
 	@Column(name = "quantity", nullable = false)
 	private Long quantity;
 
+	@Column(name = "deleted", nullable = false)
+	private Boolean deleted;
+
 	@CreationTimestamp
 	@Column(name = "created_at", nullable = false, updatable = false)
 	@Temporal(TemporalType.TIMESTAMP)

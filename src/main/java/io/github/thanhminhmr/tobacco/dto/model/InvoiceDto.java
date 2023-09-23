@@ -4,22 +4,29 @@
 
 package io.github.thanhminhmr.tobacco.dto.model;
 
-import io.github.thanhminhmr.tobacco.presistence.model.Invoice;
+import io.github.thanhminhmr.tobacco.dto.validation.DisplayString;
 import io.github.thanhminhmr.tobacco.presistence.model.InvoiceStatus;
 import jakarta.annotation.Nullable;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
+import lombok.With;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.List;
 
 /**
- * DTO for {@link Invoice}
+ * DTO for {@link io.github.thanhminhmr.tobacco.presistence.model.Invoice}
  */
+@With
 public record InvoiceDto(
 		@Nullable Long id,
-		@NotNull InvoiceStatus status,
-		@NotNull @Past Instant createdAt,
-		@NotNull @Past Instant updatedAt
+		@Nullable UserDto user,
+		@Nullable @DisplayString String displayDescription,
+		@Nullable InvoiceStatus status,
+		@Nullable List<InvoiceItemDto> items,
+		@Nullable List<InvoiceCommentDto> comments,
+		@Nullable Boolean deleted,
+		@Nullable @Past Instant createdAt,
+		@Nullable @Past Instant updatedAt
 ) implements DtoMarker, Serializable {
 }

@@ -4,23 +4,23 @@
 
 package io.github.thanhminhmr.tobacco.dto.model;
 
-import io.github.thanhminhmr.tobacco.presistence.model.Group;
+import io.github.thanhminhmr.tobacco.dto.validation.DisplayString;
 import jakarta.annotation.Nullable;
-import jakarta.validation.constraints.NotBlank;
-import lombok.Builder;
+import jakarta.validation.constraints.Past;
+import lombok.With;
 
 import java.io.Serializable;
+import java.time.Instant;
 
 /**
- * DTO for {@link Group}
- *
- * @param id Will be ignored when creating a new {@link Group}.
- * @param displayName Display name.
- * @param users Will be null unless specifically requested for.
+ * DTO for {@link io.github.thanhminhmr.tobacco.presistence.model.Group}
  */
-@Builder
+@With
 public record GroupDto(
 		@Nullable Long id,
-		@NotBlank String displayName
+		@Nullable @DisplayString String displayName,
+		@Nullable Boolean deleted,
+		@Nullable @Past Instant createdAt,
+		@Nullable @Past Instant updatedAt
 ) implements DtoMarker, Serializable {
 }

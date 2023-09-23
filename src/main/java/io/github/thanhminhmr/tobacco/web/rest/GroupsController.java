@@ -5,14 +5,12 @@
 package io.github.thanhminhmr.tobacco.web.rest;
 
 import io.github.thanhminhmr.tobacco.dto.converter.GroupConverter;
-import io.github.thanhminhmr.tobacco.dto.converter.UserConverter;
 import io.github.thanhminhmr.tobacco.dto.model.GroupDto;
 import io.github.thanhminhmr.tobacco.dto.rest.PageDto;
 import io.github.thanhminhmr.tobacco.dto.validation.DisplayString;
 import io.github.thanhminhmr.tobacco.presistence.model.Group;
 import io.github.thanhminhmr.tobacco.presistence.model.User;
 import io.github.thanhminhmr.tobacco.presistence.repository.GroupRepository;
-import io.github.thanhminhmr.tobacco.presistence.repository.UserRepository;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -31,16 +29,13 @@ import org.springframework.web.bind.annotation.*;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
 @RestController
 @RequestMapping("/api/groups")
 public record GroupsController(
 		@Nonnull GroupRepository groupRepository,
-		@Nonnull GroupConverter groupConverter,
-		@Nonnull UserRepository userRepository,
-		@Nonnull UserConverter userConverter
+		@Nonnull GroupConverter groupConverter
 ) {
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	public @Nonnull PageDto<GroupDto> list(
@@ -64,7 +59,7 @@ public record GroupsController(
 	public @Nonnull GroupDto create(@RequestBody @NotNull @Valid GroupCreateDto dto) {
 		return groupConverter.convert(groupRepository.save(Group.builder()
 				.displayName(dto.displayName())
-				.deleted(Objects.requireNonNullElse(dto.deleted(), false))
+				.deleted(false)
 				.build()));
 	}
 
@@ -77,7 +72,6 @@ public record GroupsController(
 	public @Nonnull GroupDto update(@PathVariable("groupId") long groupId, @RequestBody @NotNull @Valid GroupUpdateDto dto) {
 		final Group group = groupRepository.getReferenceById(groupId);
 		if (dto.displayName() != null) group.setDisplayName(dto.displayName());
-		if (dto.deleted() != null) group.setDeleted(dto.deleted());
 		return groupConverter.convert(groupRepository.save(group));
 	}
 
@@ -91,14 +85,12 @@ public record GroupsController(
 	//region DTO
 
 	public record GroupCreateDto(
-			@NotNull @DisplayString String displayName,
-			@Nullable Boolean deleted
+			@NotNull @DisplayString String displayName
 	) {
 	}
 
 	public record GroupUpdateDto(
-			@Nullable @DisplayString String displayName,
-			@Nullable Boolean deleted
+			@Nullable @DisplayString String displayName
 	) {
 	}
 

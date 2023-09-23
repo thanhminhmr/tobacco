@@ -4,18 +4,21 @@
 
 package io.github.thanhminhmr.tobacco.dto.converter;
 
-import io.github.thanhminhmr.tobacco.presistence.model.Group;
 import io.github.thanhminhmr.tobacco.dto.model.GroupDto;
+import io.github.thanhminhmr.tobacco.presistence.model.Group;
 import jakarta.annotation.Nonnull;
 import org.springframework.stereotype.Service;
 
 @Service
 public final class GroupConverter implements EntityDtoConverter<Group, GroupDto> {
 	@Override
-	public @Nonnull GroupDto convert(@Nonnull Group user) {
+	public @Nonnull GroupDto convert(@Nonnull Group group) {
 		return new GroupDto(
-				user.getId(),
-				user.getDisplayName()
+				group.getId(),
+				group.getDisplayName(),
+				group.getDeleted(),
+				group.getCreatedAt(),
+				group.getUpdatedAt()
 		);
 	}
 }

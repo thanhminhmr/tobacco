@@ -31,6 +31,9 @@ public class Invoice implements EntityMarker {
 	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
 
+	@Column(name = "display_description", nullable = false)
+	private String displayDescription;
+
 	@Enumerated(EnumType.STRING)
 	@Column(name = "status", nullable = false)
 	private InvoiceStatus status;
@@ -42,6 +45,9 @@ public class Invoice implements EntityMarker {
 	@ToString.Exclude
 	@OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<InvoiceComment> comments;
+
+	@Column(name = "deleted", nullable = false)
+	private Boolean deleted;
 
 	@CreationTimestamp
 	@Column(name = "created_at", nullable = false, updatable = false)
