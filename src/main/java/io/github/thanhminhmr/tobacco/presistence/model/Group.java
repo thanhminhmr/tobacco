@@ -4,15 +4,18 @@
 
 package io.github.thanhminhmr.tobacco.presistence.model;
 
+import io.github.thanhminhmr.tobacco.dto.model.GroupDto;
+import jakarta.annotation.Nonnull;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.Accessors;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
 import java.util.Set;
 
-@Builder
+@Accessors(chain = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -20,7 +23,7 @@ import java.util.Set;
 @ToString
 @Entity
 @Table(name = "groups")
-public class Group implements EntityMarker {
+public class Group implements EntityMarker<GroupDto> {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id", nullable = false, insertable = false, updatable = false)
@@ -49,4 +52,16 @@ public class Group implements EntityMarker {
 			inverseJoinColumns = @JoinColumn(name = "user_id"),
 			name = "users_groups")
 	private Set<User> users;
+
+
+	@Override
+	public @Nonnull GroupDto toDto() {
+		return new GroupDto(
+				id,
+				displayName,
+				deleted,
+				createdAt,
+				updatedAt
+		);
+	}
 }

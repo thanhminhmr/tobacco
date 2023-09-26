@@ -4,15 +4,13 @@
 
 package io.github.thanhminhmr.tobacco.web.rest;
 
-import io.github.thanhminhmr.tobacco.dto.converter.*;
 import io.github.thanhminhmr.tobacco.dto.model.InvoiceCommentDto;
 import io.github.thanhminhmr.tobacco.dto.model.InvoiceDto;
 import io.github.thanhminhmr.tobacco.dto.model.InvoiceItemDto;
 import io.github.thanhminhmr.tobacco.dto.rest.PageDto;
 import io.github.thanhminhmr.tobacco.dto.validation.DisplayString;
+import io.github.thanhminhmr.tobacco.presistence.model.EntityMarker;
 import io.github.thanhminhmr.tobacco.presistence.model.Invoice;
-import io.github.thanhminhmr.tobacco.presistence.model.InvoiceComment;
-import io.github.thanhminhmr.tobacco.presistence.model.InvoiceItem;
 import io.github.thanhminhmr.tobacco.presistence.model.InvoiceStatus;
 import io.github.thanhminhmr.tobacco.presistence.repository.InvoiceCommentRepository;
 import io.github.thanhminhmr.tobacco.presistence.repository.InvoiceItemRepository;
@@ -40,13 +38,8 @@ import java.util.List;
 @RequestMapping("/api/invoices")
 public record InvoicesController(
 		@Nonnull InvoiceRepository invoiceRepository,
-		@Nonnull InvoiceConverter invoiceConverter,
 		@Nonnull InvoiceItemRepository invoiceItemRepository,
-		@Nonnull InvoiceItemConverter invoiceItemConverter,
-		@Nonnull InvoiceCommentRepository invoiceCommentRepository,
-		@Nonnull InvoiceCommentConverter invoiceCommentConverter,
-		@Nonnull UserConverter userConverter,
-		@Nonnull ProductConverter productConverter
+		@Nonnull InvoiceCommentRepository invoiceCommentRepository
 ) {
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	public @Nonnull PageDto<InvoiceDto> list(
@@ -59,7 +52,7 @@ public record InvoicesController(
 			@RequestParam(value = "updatedAfter", required = false) @Nullable Instant updatedAfter,
 			@RequestParam(value = "pageNumber", defaultValue = "0") @Min(0) int pageNumber,
 			@RequestParam(value = "pageSize", defaultValue = "20") @Min(1) @Max(100) int pageSize) {
-		return invoiceConverter.convert(invoiceRepository.findAll(
+		return EntityMarker.toPageDto(invoiceRepository.findAll(
 				new InvoiceListSpecification(displayDescription, invoiceStatus,
 						deleted, createdBefore, createdAfter, updatedBefore, updatedAfter),
 				PageRequest.of(pageNumber, pageSize)
@@ -68,32 +61,16 @@ public record InvoicesController(
 
 	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @Nonnull InvoiceDto create(@RequestBody @NotNull @Valid InvoiceCreateDto dto) {
-		return invoiceConverter.convert(invoiceRepository.save(Invoice.builder()
-				.displayDescription(dto.displayDescription())
-				.status(dto.status())
-				.deleted(false)
-				.build()));
+		return invoiceRepository.save(new Invoice()
+				.setDisplayDescription(dto.displayDescription())
+				.setStatus(dto.status())
+				.setDeleted(false)
+		).toDto();
 	}
 
 	@GetMapping(value = "/{invoiceId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public @Nonnull InvoiceDto get(@PathVariable("invoiceId") long invoiceId) {
-		final Invoice invoice = invoiceRepository.getReferenceById(invoiceId);
-		// get all comments with the commenter info
-		final List<InvoiceCommentDto> commentDtos = new ArrayList<>();
-		for (final InvoiceComment comment : invoice.getComments()) {
-			commentDtos.add(invoiceCommentConverter.convert(comment)
-					.withUser(userConverter.convert(comment.getUser())));
-		}
-		// get all items with the product info
-		final List<InvoiceItemDto> itemDtos = new ArrayList<>();
-		for (final InvoiceItem item : invoice.getItems()) {
-			itemDtos.add(invoiceItemConverter.convert(item)
-					.withProduct(productConverter.convert(item.getProduct())));
-		}
-		return invoiceConverter.convert(invoice)
-				.withUser(userConverter.convert(invoice.getUser()))
-				.withComments(commentDtos)
-				.withItems(itemDtos);
+		return invoiceRepository.getReferenceById(invoiceId).toDto();
 	}
 
 	@PutMapping(value = "/{invoiceId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -101,7 +78,7 @@ public record InvoicesController(
 		final Invoice invoice = invoiceRepository.getReferenceById(invoiceId);
 		if (dto.displayDescription() != null) invoice.setDisplayDescription(dto.displayDescription());
 		if (dto.status() != null) invoice.setStatus(dto.status());
-		return invoiceConverter.convert(invoiceRepository.save(invoice));
+		return invoiceRepository.save(invoice).toDto();
 	}
 
 	@DeleteMapping(value = "/{invoiceId}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -110,6 +87,18 @@ public record InvoicesController(
 		invoice.setDeleted(true);
 		invoiceRepository.save(invoice);
 	}
+
+
+	@GetMapping(value = "/{invoiceId}/comments", produces = MediaType.APPLICATION_JSON_VALUE)
+	public @Nonnull List<InvoiceCommentDto> getComments(@PathVariable("invoiceId") long invoiceId) {
+		return EntityMarker.toDtos(invoiceRepository.getReferenceById(invoiceId).getComments());
+	}
+
+	@GetMapping(value = "/{invoiceId}/items", produces = MediaType.APPLICATION_JSON_VALUE)
+	public @Nonnull List<InvoiceItemDto> getItems(@PathVariable("invoiceId") long invoiceId) {
+		return EntityMarker.toDtos(invoiceRepository.getReferenceById(invoiceId).getItems());
+	}
+
 
 	//region DTO
 

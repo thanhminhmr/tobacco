@@ -4,10 +4,10 @@
 
 package io.github.thanhminhmr.tobacco.web.rest;
 
-import io.github.thanhminhmr.tobacco.dto.converter.ProductConverter;
 import io.github.thanhminhmr.tobacco.dto.model.ProductDto;
 import io.github.thanhminhmr.tobacco.dto.rest.PageDto;
 import io.github.thanhminhmr.tobacco.dto.validation.DisplayString;
+import io.github.thanhminhmr.tobacco.presistence.model.EntityMarker;
 import io.github.thanhminhmr.tobacco.presistence.model.Product;
 import io.github.thanhminhmr.tobacco.presistence.repository.ProductRepository;
 import jakarta.annotation.Nonnull;
@@ -32,8 +32,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/products")
 public record ProductsController(
-		@Nonnull ProductRepository productRepository,
-		@Nonnull ProductConverter productConverter
+		@Nonnull ProductRepository productRepository
 ) {
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	public @Nonnull PageDto<ProductDto> list(
@@ -49,7 +48,7 @@ public record ProductsController(
 			@RequestParam(value = "updatedAfter", required = false) @Nullable Instant updatedAfter,
 			@RequestParam(value = "pageNumber", defaultValue = "0") @Min(0) int pageNumber,
 			@RequestParam(value = "pageSize", defaultValue = "20") @Min(1) @Max(100) int pageSize) {
-		return productConverter.convert(productRepository.findAll(
+		return EntityMarker.toPageDto(productRepository.findAll(
 				new ProductListSpecification(displayName, displayDescription, displayUnit, minimumPrice, maximumPrice,
 						deleted, createdBefore, createdAfter, updatedBefore, updatedAfter),
 				PageRequest.of(pageNumber, pageSize)
@@ -58,18 +57,18 @@ public record ProductsController(
 
 	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @Nonnull ProductDto create(@RequestBody @NotNull @Valid ProductCreateDto dto) {
-		return productConverter.convert(productRepository.save(Product.builder()
-				.displayName(dto.displayName())
-				.displayDescription(dto.displayDescription())
-				.displayUnit(dto.displayUnit())
-				.currentPrice(dto.currentPrice())
-				.deleted(false)
-				.build()));
+		return productRepository.save(new Product()
+				.setDisplayName(dto.displayName())
+				.setDisplayDescription(dto.displayDescription())
+				.setDisplayUnit(dto.displayUnit())
+				.setCurrentPrice(dto.currentPrice())
+				.setDeleted(false)
+		).toDto();
 	}
 
 	@GetMapping(value = "/{productId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public @Nonnull ProductDto get(@PathVariable("productId") long productId) {
-		return productConverter.convert(productRepository.getReferenceById(productId));
+		return productRepository.getReferenceById(productId).toDto();
 	}
 
 	@PutMapping(value = "/{productId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -79,7 +78,7 @@ public record ProductsController(
 		if (dto.displayDescription() != null) product.setDisplayDescription(dto.displayDescription());
 		if (dto.displayUnit() != null) product.setDisplayUnit(dto.displayUnit());
 		if (dto.currentPrice() != null) product.setCurrentPrice(dto.currentPrice());
-		return productConverter.convert(productRepository.save(product));
+		return productRepository.save(product).toDto();
 	}
 
 	@DeleteMapping(value = "/{productId}", produces = MediaType.APPLICATION_JSON_VALUE)

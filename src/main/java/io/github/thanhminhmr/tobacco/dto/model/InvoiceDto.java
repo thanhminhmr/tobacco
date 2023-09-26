@@ -12,7 +12,6 @@ import lombok.With;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.List;
 
 /**
  * DTO for {@link io.github.thanhminhmr.tobacco.presistence.model.Invoice}
@@ -23,8 +22,6 @@ public record InvoiceDto(
 		@Nullable UserDto user,
 		@Nullable @DisplayString String displayDescription,
 		@Nullable InvoiceStatus status,
-		@Nullable List<InvoiceItemDto> items,
-		@Nullable List<InvoiceCommentDto> comments,
 		@Nullable Boolean deleted,
 		@Nullable @Past Instant createdAt,
 		@Nullable @Past Instant updatedAt

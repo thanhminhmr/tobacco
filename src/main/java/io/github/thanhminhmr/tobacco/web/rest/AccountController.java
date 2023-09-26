@@ -4,7 +4,6 @@
 
 package io.github.thanhminhmr.tobacco.web.rest;
 
-import io.github.thanhminhmr.tobacco.dto.converter.UserConverter;
 import io.github.thanhminhmr.tobacco.dto.model.UserDto;
 import io.github.thanhminhmr.tobacco.dto.validation.DisplayString;
 import io.github.thanhminhmr.tobacco.dto.validation.PasswordString;
@@ -27,8 +26,7 @@ import org.springframework.web.server.ResponseStatusException;
 @RequestMapping("/api/account")
 public record AccountController(
 		@Nonnull PasswordEncoder passwordEncoder,
-		@Nonnull UserRepository userRepository,
-		@Nonnull UserConverter userConverter
+		@Nonnull UserRepository userRepository
 ) implements UserDetailsService {
 	public static @Nonnull User getCurrentUser(@Nonnull Authentication authentication) {
 		// check if logged in
@@ -58,7 +56,7 @@ public record AccountController(
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	public @Nonnull UserDto get(@NotNull Authentication authentication) {
 		// return current user info
-		return userConverter.convert(getCurrentUser(authentication));
+		return getCurrentUser(authentication).toDto();
 	}
 
 	/**
@@ -72,7 +70,7 @@ public record AccountController(
 	public @Nonnull UserDto update(@NotNull Authentication authentication, @RequestBody @NotNull @Valid AccountUpdateDto dto) {
 		final User user = getCurrentUser(authentication);
 		if (dto.displayName() != null) user.setDisplayName(dto.displayName());
-		return userConverter.convert(userRepository.save(user));
+		return userRepository.save(user).toDto();
 	}
 
 	/**
@@ -104,16 +102,12 @@ public record AccountController(
 	public void changePassword(@NotNull Authentication authentication, @RequestBody @NotNull @Valid AccountChangePasswordDto dto) {
 		final User user = getCurrentUser(authentication);
 		// check current password
-		final String currentPassword = dto.currentPassword();
-		if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+		if (!passwordEncoder.matches(dto.currentPassword(), user.getPassword())) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid current password.");
 		}
 		// save new password
-		final String newPassword = dto.newPassword();
-		if (!currentPassword.equals(newPassword)) {
-			user.setPassword(passwordEncoder.encode(newPassword));
-			userRepository.save(user);
-		}
+		user.setPassword(passwordEncoder.encode(dto.newPassword()));
+		userRepository.save(user);
 		// TODO logout?
 	}
 

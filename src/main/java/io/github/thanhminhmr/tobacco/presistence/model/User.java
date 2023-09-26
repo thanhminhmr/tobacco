@@ -4,8 +4,11 @@
 
 package io.github.thanhminhmr.tobacco.presistence.model;
 
+import io.github.thanhminhmr.tobacco.dto.model.UserDto;
+import jakarta.annotation.Nonnull;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.Accessors;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,7 +16,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.time.Instant;
 import java.util.Set;
 
-@Builder
+@Accessors(chain = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -21,7 +24,7 @@ import java.util.Set;
 @ToString
 @Entity
 @Table(name = "users")
-public class User implements EntityMarker, UserDetails {
+public class User implements EntityMarker<UserDto>, UserDetails {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id", nullable = false, insertable = false, updatable = false)
@@ -83,5 +86,18 @@ public class User implements EntityMarker, UserDetails {
 	@Override
 	public boolean isEnabled() {
 		return !getDeleted();
+	}
+
+	@Override
+	public @Nonnull UserDto toDto() {
+		return new UserDto(
+				id,
+				username,
+				displayName,
+				deleted,
+				createdAt,
+				updatedAt,
+				null
+		);
 	}
 }

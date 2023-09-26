@@ -4,8 +4,5 @@
 
 package io.github.thanhminhmr.tobacco.dto.model;
 
-import jakarta.annotation.Nullable;
-
 public interface DtoMarker {
-	@Nullable Long id();
 }

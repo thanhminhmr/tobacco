@@ -4,15 +4,18 @@
 
 package io.github.thanhminhmr.tobacco.presistence.model;
 
+import io.github.thanhminhmr.tobacco.dto.model.InvoiceDto;
+import jakarta.annotation.Nonnull;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.Accessors;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
 import java.util.List;
 
-@Builder
+@Accessors(chain = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -20,7 +23,7 @@ import java.util.List;
 @ToString
 @Entity
 @Table(name = "invoices")
-public class Invoice implements EntityMarker {
+public class Invoice implements EntityMarker<InvoiceDto> {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id", nullable = false, insertable = false, updatable = false)
@@ -58,4 +61,17 @@ public class Invoice implements EntityMarker {
 	@Column(name = "updated_at", nullable = false)
 	@Temporal(TemporalType.TIMESTAMP)
 	private Instant updatedAt;
+
+	@Override
+	public @Nonnull InvoiceDto toDto() {
+		return new InvoiceDto(
+				id,
+				user.toDto(),
+				displayDescription,
+				status,
+				deleted,
+				createdAt,
+				updatedAt
+		);
+	}
 }

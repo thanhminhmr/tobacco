@@ -4,10 +4,10 @@
 
 package io.github.thanhminhmr.tobacco.web.rest;
 
-import io.github.thanhminhmr.tobacco.dto.converter.GroupConverter;
 import io.github.thanhminhmr.tobacco.dto.model.GroupDto;
 import io.github.thanhminhmr.tobacco.dto.rest.PageDto;
 import io.github.thanhminhmr.tobacco.dto.validation.DisplayString;
+import io.github.thanhminhmr.tobacco.presistence.model.EntityMarker;
 import io.github.thanhminhmr.tobacco.presistence.model.Group;
 import io.github.thanhminhmr.tobacco.presistence.model.User;
 import io.github.thanhminhmr.tobacco.presistence.repository.GroupRepository;
@@ -34,8 +34,7 @@ import java.util.Set;
 @RestController
 @RequestMapping("/api/groups")
 public record GroupsController(
-		@Nonnull GroupRepository groupRepository,
-		@Nonnull GroupConverter groupConverter
+		@Nonnull GroupRepository groupRepository
 ) {
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	public @Nonnull PageDto<GroupDto> list(
@@ -48,7 +47,7 @@ public record GroupsController(
 			@RequestParam(value = "updatedAfter", required = false) @Nullable Instant updatedAfter,
 			@RequestParam(value = "pageNumber", defaultValue = "0") @Min(0) int pageNumber,
 			@RequestParam(value = "pageSize", defaultValue = "20") @Min(1) @Max(100) int pageSize) {
-		return groupConverter.convert(groupRepository.findAll(
+		return EntityMarker.toPageDto(groupRepository.findAll(
 				new GroupListSpecification(displayName, userId, deleted,
 						createdBefore, createdAfter, updatedBefore, updatedAfter),
 				PageRequest.of(pageNumber, pageSize)
@@ -57,22 +56,22 @@ public record GroupsController(
 
 	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @Nonnull GroupDto create(@RequestBody @NotNull @Valid GroupCreateDto dto) {
-		return groupConverter.convert(groupRepository.save(Group.builder()
-				.displayName(dto.displayName())
-				.deleted(false)
-				.build()));
+		return groupRepository.save(new Group()
+				.setDisplayName(dto.displayName())
+				.setDeleted(false)
+		).toDto();
 	}
 
 	@GetMapping(value = "/{groupId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public @Nonnull GroupDto get(@PathVariable("groupId") long groupId) {
-		return groupConverter.convert(groupRepository.getReferenceById(groupId));
+		return groupRepository.getReferenceById(groupId).toDto();
 	}
 
 	@PutMapping(value = "/{groupId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @Nonnull GroupDto update(@PathVariable("groupId") long groupId, @RequestBody @NotNull @Valid GroupUpdateDto dto) {
 		final Group group = groupRepository.getReferenceById(groupId);
 		if (dto.displayName() != null) group.setDisplayName(dto.displayName());
-		return groupConverter.convert(groupRepository.save(group));
+		return groupRepository.save(group).toDto();
 	}
 
 	@DeleteMapping(value = "/{groupId}", produces = MediaType.APPLICATION_JSON_VALUE)

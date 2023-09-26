@@ -39,60 +39,53 @@ public class TobaccoApplication {
 		return (args) -> {
 			// save a few customers
 			if (!userRepository.existsByUsername("username")) {
-				userRepository.save(User.builder()
-						.username("username")
-						.password(passwordEncoder.encode("password"))
-						.displayName("User One")
-						.authorities(Set.of(Authority.SUPER_ADMIN, Authority.NORMAL_USER))
-						.deleted(false)
-						.build());
+				userRepository.save(new User()
+						.setUsername("username")
+						.setPassword(passwordEncoder.encode("password"))
+						.setDisplayName("User One")
+						.setAuthorities(Set.of(Authority.SUPER_ADMIN, Authority.NORMAL_USER))
+						.setDeleted(false));
 			}
 
-			productRepository.save(Product.builder()
-					.displayName("Product One")
-					.displayDescription("The product that has a giant number one.")
-					.displayUnit("ONE")
-					.currentPrice(10000L)
-					.deleted(false)
-					.build());
-			productRepository.save(Product.builder()
-					.displayName("Product Two")
-					.displayDescription("The product that has a giant number two.")
-					.displayUnit("TWO")
-					.currentPrice(20000L)
-					.deleted(false)
-					.build());
-			productRepository.save(Product.builder()
-					.displayName("Product Three")
-					.displayDescription("The product that has a giant number three.")
-					.displayUnit("three")
-					.currentPrice(30000L)
-					.deleted(false)
-					.build());
+			productRepository.save(new Product()
+					.setDisplayName("Product One")
+					.setDisplayDescription("The product that has a giant number one.")
+					.setDisplayUnit("ONE")
+					.setCurrentPrice(10000L)
+					.setDeleted(false));
+			productRepository.save(new Product()
+					.setDisplayName("Product Two")
+					.setDisplayDescription("The product that has a giant number two.")
+					.setDisplayUnit("TWO")
+					.setCurrentPrice(20000L)
+					.setDeleted(false));
+			productRepository.save(new Product()
+					.setDisplayName("Product Three")
+					.setDisplayDescription("The product that has a giant number three.")
+					.setDisplayUnit("three")
+					.setCurrentPrice(30000L)
+					.setDeleted(false));
 
-			final Invoice invoice = Invoice.builder()
-					.user(userRepository.findById(1L).orElseThrow())
-					.displayDescription("New invoice")
-					.status(InvoiceStatus.CREATED)
-					.deleted(false)
-					.build();
+			final Invoice invoice = new Invoice()
+					.setUser(userRepository.findById(1L).orElseThrow())
+					.setDisplayDescription("New invoice")
+					.setStatus(InvoiceStatus.CREATED)
+					.setDeleted(false);
 
-			invoice.setItems(List.of(InvoiceItem.builder()
-					.invoice(invoice)
-					.product(productRepository.findById(1L).orElseThrow())
-					.quantity(100L)
-					.unitPrice(10000L)
-					.deleted(false)
-					.build()));
+			invoice.setItems(List.of(new InvoiceItem()
+					.setInvoice(invoice)
+					.setProduct(productRepository.findById(1L).orElseThrow())
+					.setQuantity(100L)
+					.setUnitPrice(10000L)
+					.setDeleted(false)));
 
-			invoice.setComments(List.of(InvoiceComment.builder()
-					.invoice(invoice)
-					.user(userRepository.findById(1L).orElseThrow())
-					.displayComment("Comment one")
-					.statusBefore(InvoiceStatus.CREATED)
-					.statusAfter(InvoiceStatus.CREATED)
-					.deleted(false)
-					.build()));
+			invoice.setComments(List.of(new InvoiceComment()
+					.setInvoice(invoice)
+					.setUser(userRepository.findById(1L).orElseThrow())
+					.setDisplayComment("Comment one")
+					.setStatusBefore(InvoiceStatus.CREATED)
+					.setStatusAfter(InvoiceStatus.CREATED)
+					.setDeleted(false)));
 
 			invoiceRepository.save(invoice);
 

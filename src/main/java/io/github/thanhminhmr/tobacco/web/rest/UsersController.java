@@ -4,12 +4,12 @@
 
 package io.github.thanhminhmr.tobacco.web.rest;
 
-import io.github.thanhminhmr.tobacco.dto.converter.UserConverter;
 import io.github.thanhminhmr.tobacco.dto.model.UserDto;
 import io.github.thanhminhmr.tobacco.dto.rest.PageDto;
 import io.github.thanhminhmr.tobacco.dto.validation.DisplayString;
 import io.github.thanhminhmr.tobacco.dto.validation.UsernameString;
 import io.github.thanhminhmr.tobacco.presistence.model.Authority;
+import io.github.thanhminhmr.tobacco.presistence.model.EntityMarker;
 import io.github.thanhminhmr.tobacco.presistence.model.Group;
 import io.github.thanhminhmr.tobacco.presistence.model.User;
 import io.github.thanhminhmr.tobacco.presistence.repository.UserRepository;
@@ -42,8 +42,7 @@ import java.util.concurrent.ThreadLocalRandom;
 @RequestMapping("/api/users")
 public record UsersController(
 		@Nonnull PasswordEncoder passwordEncoder,
-		@Nonnull UserRepository userRepository,
-		@Nonnull UserConverter userConverter
+		@Nonnull UserRepository userRepository
 ) {
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	public @Nonnull PageDto<UserDto> list(
@@ -57,7 +56,7 @@ public record UsersController(
 			@RequestParam(value = "updatedAfter", required = false) @Nullable Instant updatedAfter,
 			@RequestParam(value = "pageNumber", defaultValue = "0") @Min(0) int pageNumber,
 			@RequestParam(value = "pageSize", defaultValue = "20") @Min(1) @Max(100) int pageSize) {
-		return userConverter.convert(userRepository.findAll(
+		return EntityMarker.toPageDto(userRepository.findAll(
 				new UserListSpecification(displayName, authority, groupId, deleted,
 						createdBefore, createdAfter, updatedBefore, updatedAfter),
 				PageRequest.of(pageNumber, pageSize)
@@ -73,20 +72,20 @@ public record UsersController(
 		// generate a random 9 digits password
 		final String password = String.format("%09d", ThreadLocalRandom.current().nextInt(1_000_000_000));
 		// save user
-		final User user = userRepository.save(User.builder()
-				.username(dto.username())
-				.password(passwordEncoder.encode(password))
-				.displayName(dto.displayName())
-				.authorities(Objects.requireNonNullElse(dto.authorities(), Set.of()))
-				.deleted(false)
-				.build());
+		final User user = userRepository.save(new User()
+				.setUsername(dto.username())
+				.setPassword(passwordEncoder.encode(password))
+				.setDisplayName(dto.displayName())
+				.setAuthorities(Objects.requireNonNullElse(dto.authorities(), Set.of()))
+				.setDeleted(false)
+		);
 		// TODO: the new password needs to be returned
-		return userConverter.convert(user);
+		return user.toDto();
 	}
 
 	@GetMapping(value = "/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public @Nonnull UserDto get(@PathVariable("userId") long userId) {
-		return userConverter.convert(userRepository.getReferenceById(userId));
+		return userRepository.getReferenceById(userId).toDto();
 	}
 
 	@PutMapping(value = "/{userId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -94,7 +93,7 @@ public record UsersController(
 		final User user = userRepository.getReferenceById(userId);
 		if (dto.displayName() != null) user.setDisplayName(dto.displayName());
 		if (dto.authorities() != null) user.setAuthorities(dto.authorities());
-		return userConverter.convert(userRepository.save(user));
+		return userRepository.save(user).toDto();
 	}
 
 	@DeleteMapping(value = "/{userId}")
