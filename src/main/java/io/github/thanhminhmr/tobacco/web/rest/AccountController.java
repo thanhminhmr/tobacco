@@ -35,7 +35,7 @@ public record AccountController(
 			return user;
 		} else {
 			// this should never happen
-			throw new IllegalStateException("Not logged in.");
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not logged in.");
 		}
 	}
 

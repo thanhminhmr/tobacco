@@ -19,7 +19,7 @@ import java.time.Instant;
 @With
 public record InvoiceDto(
 		@Nullable Long id,
-		@Nullable UserDto user,
+		@Nullable UserDto author,
 		@Nullable @DisplayString String displayDescription,
 		@Nullable InvoiceStatus status,
 		@Nullable Boolean deleted,

@@ -100,4 +100,14 @@ public class User implements EntityMarker<UserDto>, UserDetails {
 				null
 		);
 	}
+
+	@Override
+	public int hashCode() {
+		return User.class.hashCode();
+	}
+
+	@Override
+	public boolean equals(@Nonnull Object object) {
+		return object == this || id != null && object instanceof User user && id.equals(user.id);
+	}
 }

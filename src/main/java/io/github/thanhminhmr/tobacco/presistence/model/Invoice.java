@@ -31,8 +31,8 @@ public class Invoice implements EntityMarker<InvoiceDto> {
 
 	@ToString.Exclude
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
-	@JoinColumn(name = "user_id", nullable = false)
-	private User user;
+	@JoinColumn(name = "author_id", nullable = false)
+	private User author;
 
 	@Column(name = "display_description", nullable = false)
 	private String displayDescription;
@@ -66,7 +66,7 @@ public class Invoice implements EntityMarker<InvoiceDto> {
 	public @Nonnull InvoiceDto toDto() {
 		return new InvoiceDto(
 				id,
-				user.toDto(),
+				author.toDto(),
 				displayDescription,
 				status,
 				deleted,

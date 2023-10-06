@@ -9,10 +9,11 @@ import org.springframework.security.core.GrantedAuthority;
 
 public enum Authority implements GrantedAuthority {
 	SUPER_ADMIN(Name.SUPER_ADMIN),
-	NORMAL_USER(Name.NORMAL_USER),
+	USER_SALESMAN(Name.USER_SALESMAN),
+	USER_SALE_MANAGER(Name.USER_SALE_MANAGER),
+	USER_ACCOUNTANT(Name.USER_ACCOUNTANT),
+	USER_MARKET_DIRECTOR(Name.USER_MARKET_DIRECTOR),
 	;
-
-	// TODO These are some sample authorities
 
 
 	private final @Nonnull String authority;
@@ -28,10 +29,14 @@ public enum Authority implements GrantedAuthority {
 
 
 	public static final class Name {
+
 		private Name() {
 		}
 
 		public static final @Nonnull String SUPER_ADMIN = "SUPER_ADMIN";
-		public static final @Nonnull String NORMAL_USER = "NORMAL_USER";
+		public static final @Nonnull String USER_SALESMAN = "USER_SALESMAN";
+		public static final @Nonnull String USER_SALE_MANAGER = "USER_SALE_MANAGER";
+		public static final @Nonnull String USER_ACCOUNTANT = "USER_ACCOUNTANT";
+		public static final @Nonnull String USER_MARKET_DIRECTOR = "USER_MARKET_DIRECTOR";
 	}
 }
